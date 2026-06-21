@@ -2,7 +2,7 @@ import React from 'react';
 import { LogOut, BookOpen, User } from 'lucide-react';
 import { logout } from '../services/auth';
 
-export default function Header({ user, onLogout, onHomeClick }) {
+export default function Header({ user, onLogout, onHomeClick, currentPage, onNavChange }) {
   const handleLogout = () => {
     logout();
     onLogout();
@@ -23,6 +23,24 @@ export default function Header({ user, onLogout, onHomeClick }) {
             </span>
           </div>
         </div>
+
+        {/* Navigation Tabs */}
+        {user && (
+          <nav className="header-nav">
+            <button 
+              className={`nav-link-btn ${currentPage === 'home' ? 'active' : ''}`}
+              onClick={() => onNavChange('home')}
+            >
+              หน้าแรก
+            </button>
+            <button 
+              className={`nav-link-btn ${currentPage === 'dashboard' ? 'active' : ''}`}
+              onClick={() => onNavChange('dashboard')}
+            >
+              แดชบอร์ด
+            </button>
+          </nav>
+        )}
 
         {/* Right Side: Logged-in User Profile (aligned far-right) */}
         {user && (
@@ -52,6 +70,35 @@ export default function Header({ user, onLogout, onHomeClick }) {
       </div>
 
       <style>{`
+        .header-nav {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+        }
+
+        .nav-link-btn {
+          background: transparent;
+          border: none;
+          color: var(--slate);
+          font-weight: 750;
+          font-size: 0.88rem;
+          padding: 8px 18px;
+          border-radius: 50px;
+          cursor: pointer;
+          transition: var(--transition);
+        }
+
+        .nav-link-btn:hover {
+          color: var(--primary);
+          background-color: var(--primary-light);
+        }
+
+        .nav-link-btn.active {
+          color: var(--primary);
+          background-color: var(--primary-light);
+          box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.15);
+        }
+
         .site-header {
           background: rgba(255, 255, 255, 0.85);
           backdrop-filter: blur(16px);

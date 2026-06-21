@@ -3,6 +3,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
 import WorkplaceDetail from './pages/WorkplaceDetail';
 import AddWorkplaceModal from './components/AddWorkplaceModal';
 import AddReviewModal from './components/AddReviewModal';
@@ -16,8 +17,12 @@ function App() {
   const [siteViews, setSiteViews] = useState(0);
   
   // Navigation
-  const [currentPage, setCurrentPage] = useState('dashboard'); // 'dashboard' | 'detail'
+  const [currentPage, setCurrentPage] = useState('home'); // 'home' | 'dashboard' | 'detail'
   const [selectedWorkplaceId, setSelectedWorkplaceId] = useState(null);
+
+  // Shared search states passed from Home to Dashboard
+  const [initialSearchTerm, setInitialSearchTerm] = useState('');
+  const [initialSelectedDept, setInitialSelectedDept] = useState('ทั้งหมด');
 
   // Modals
   const [showAddWorkplace, setShowAddWorkplace] = useState(false);
@@ -52,7 +57,7 @@ function App() {
 
   const handleLogout = () => {
     setUser(null);
-    setCurrentPage('dashboard');
+    setCurrentPage('home');
     setSelectedWorkplaceId(null);
   };
 
@@ -68,10 +73,24 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleBackToDashboard = () => {
+  const handleBackToHome = () => {
+    setSelectedWorkplaceId(null);
+    setCurrentPage('home');
+    setWorkplaces(getWorkplaces()); // Refresh counters
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNavChange = (page) => {
+    setSelectedWorkplaceId(null);
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSearch = (keyword, dept) => {
+    setInitialSearchTerm(keyword);
+    setInitialSelectedDept(dept);
     setSelectedWorkplaceId(null);
     setCurrentPage('dashboard');
-    setWorkplaces(getWorkplaces()); // Refresh counters
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -110,29 +129,47 @@ function App() {
       <Header 
         user={user} 
         onLogout={handleLogout} 
-        onHomeClick={handleBackToDashboard}
+        onHomeClick={handleBackToHome}
+        currentPage={currentPage}
+        onNavChange={handleNavChange}
       />
       
       {/* Main viewport area below Header */}
       <div className="app-main-wrapper">
-        {currentPage === 'dashboard' ? (
+        {currentPage === 'home' && (
           <>
-            <Dashboard 
+            <Home 
               workplaces={workplaces}
-              siteViews={siteViews} // Pass visitor counter to Dashboard
+              siteViews={siteViews}
+              onSearch={handleSearch}
               onWorkplaceClick={handleWorkplaceClick}
-              onAddWorkplaceClick={() => setShowAddWorkplace(true)}
             />
             <Footer />
           </>
-        ) : (
+        )}
+
+        {currentPage === 'dashboard' && (
+          <>
+            <Dashboard 
+              workplaces={workplaces}
+              siteViews={siteViews}
+              onWorkplaceClick={handleWorkplaceClick}
+              onAddWorkplaceClick={() => setShowAddWorkplace(true)}
+              initialSearchTerm={initialSearchTerm}
+              initialSelectedDept={initialSelectedDept}
+            />
+            <Footer />
+          </>
+        )}
+
+        {currentPage === 'detail' && (
           <>
             <main className="main-content-padded">
               {currentWorkplace && (
                 <WorkplaceDetail 
                   workplace={currentWorkplace}
                   reviews={reviews}
-                  onBackClick={handleBackToDashboard}
+                  onBackClick={handleBackToHome}
                   onAddReviewClick={() => setShowAddReview(true)}
                 />
               )}
