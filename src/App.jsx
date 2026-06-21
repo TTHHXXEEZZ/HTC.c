@@ -116,12 +116,15 @@ function App() {
       {/* Main viewport area below Header */}
       <div className="app-main-wrapper">
         {currentPage === 'dashboard' ? (
-          <Dashboard 
-            workplaces={workplaces}
-            siteViews={siteViews} // Pass visitor counter to Dashboard
-            onWorkplaceClick={handleWorkplaceClick}
-            onAddWorkplaceClick={() => setShowAddWorkplace(true)}
-          />
+          <>
+            <Dashboard 
+              workplaces={workplaces}
+              siteViews={siteViews} // Pass visitor counter to Dashboard
+              onWorkplaceClick={handleWorkplaceClick}
+              onAddWorkplaceClick={() => setShowAddWorkplace(true)}
+            />
+            <Footer />
+          </>
         ) : (
           <>
             <main className="main-content-padded">

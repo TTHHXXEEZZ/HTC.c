@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Plus, SlidersHorizontal, BookOpen, MessageSquare, Star, X, Filter, Eye } from 'lucide-react';
+import { Search, Plus, SlidersHorizontal, BookOpen, MessageSquare, Star, Eye } from 'lucide-react';
 import { DEPARTMENTS } from '../services/api';
 import WorkplaceCard from '../components/WorkplaceCard';
 
@@ -7,9 +7,10 @@ export default function Dashboard({ workplaces = [], siteViews = 0, onWorkplaceC
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDept, setSelectedDept] = useState('ทั้งหมด');
   const [sortBy, setSortBy] = useState('rating'); // rating, reviews, name
-  
-  // Mobile Filter Drawer Toggle
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // Temporary inputs inside the JobsDB search hero
+  const [tempSearch, setTempSearch] = useState('');
+  const [tempDept, setTempDept] = useState('ทั้งหมด');
 
   // Calculate statistics
   const stats = useMemo(() => {
@@ -58,558 +59,627 @@ export default function Dashboard({ workplaces = [], siteViews = 0, onWorkplaceC
     return list;
   }, [workplaces, searchTerm, selectedDept, sortBy]);
 
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault();
+    setSearchTerm(tempSearch);
+    setSelectedDept(tempDept);
+  };
+
+  const handleDeptSelect = (dept) => {
+    setSelectedDept(dept);
+    setTempDept(dept);
+  };
+
   return (
-    <div className="dashboard-layout-wireframe">
-      {/* Mobile Filter Drawer Overlay */}
-      {isFilterOpen && (
-        <div className="filter-overlay-mobile" onClick={() => setIsFilterOpen(false)}></div>
-      )}
+    <div className="jobsdb-dashboard-layout">
+      {/* 1. Immersive Blue Hero Search Banner */}
+      <section className="hero-banner">
+        <div className="hero-banner-glow"></div>
+        <div className="hero-banner-content">
+          <h2 className="hero-title animate-fade-in">ค้นหาสถานประกอบการฝึกงานที่ดีที่สุด</h2>
+          <p className="hero-subtitle animate-fade-in">ฐานข้อมูลแนะแนวและการรีวิวจากรุ่นพี่วิทยาลัยเทคนิคหาดใหญ่ (HTC)</p>
+          
+          {/* Search Card Widget */}
+          <form className="search-card-widget animate-scale-up" onSubmit={handleSearchSubmit}>
+            <div className="search-field keyword-field">
+              <Search className="field-icon" size={18} />
+              <input 
+                type="text" 
+                placeholder="ค้นหาชื่อบริษัท, ลักษณะงาน, ที่ตั้ง..." 
+                value={tempSearch} 
+                onChange={(e) => setTempSearch(e.target.value)}
+              />
+            </div>
+            
+            <div className="search-field select-field">
+              <select 
+                value={tempDept} 
+                onChange={(e) => setTempDept(e.target.value)}
+              >
+                <option value="ทั้งหมด">ทุกแผนกวิชา</option>
+                {DEPARTMENTS.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
+            </div>
+            
+            <button type="submit" className="hero-search-btn">
+              <Search size={18} />
+              <span>ค้นหา</span>
+            </button>
+          </form>
 
-      {/* Left Sidebar (Floating Rounded Panel) */}
-      <aside className={`filter-sidebar-box ${isFilterOpen ? 'mobile-open' : ''}`}>
-        <div className="sidebar-header-mobile">
-          <h4>ตัวกรองข้อมูล</h4>
-          <button className="btn-close-filter" onClick={() => setIsFilterOpen(false)}>
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* 1. Search Bar */}
-        <div className="sidebar-section">
-          <label className="sidebar-section-title">ค้นหาสถานประกอบการ</label>
-          <div className="sidebar-search-box">
-            <Search size={16} className="sidebar-search-icon" />
-            <input
-              type="text"
-              className="sidebar-search-input"
-              placeholder="พิมพ์ชื่อบริษัท ลักษณะงาน..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          {/* Quick Stats Pills */}
+          <div className="hero-stats-row animate-fade-in">
+            <div className="stat-pill-item">
+              <Eye size={14} className="stat-pill-icon color-red" />
+              <span>ผู้เข้ารับชมเว็บไซต์ <strong>{siteViews}</strong> ครั้ง</span>
+            </div>
+            <div className="stat-pill-item">
+              <BookOpen size={14} className="stat-pill-icon color-blue" />
+              <span>สถานประกอบการ <strong>{stats.totalWp}</strong> แห่ง</span>
+            </div>
+            <div className="stat-pill-item">
+              <MessageSquare size={14} className="stat-pill-icon color-green" />
+              <span>รีวิวของรุ่นพี่ <strong>{stats.totalRev}</strong> รายการ</span>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* 2. Sorting */}
-        <div className="sidebar-section">
-          <label className="sidebar-section-title">เรียงลำดับข้อมูล</label>
-          <select 
-            className="sidebar-select" 
-            value={sortBy} 
-            onChange={(e) => setSortBy(e.target.value)}
-          >
-            <option value="rating">⭐ คะแนนรีวิวสูงสุด</option>
-            <option value="reviews">💬 รีวิวมากที่สุด</option>
-            <option value="name">🔤 ชื่อบริษัท (ก-ฮ)</option>
-          </select>
-        </div>
-
-        {/* 3. Department Filters */}
-        <div className="sidebar-section dept-section">
-          <label className="sidebar-section-title">กรองตามแผนกวิชา</label>
-          <div className="sidebar-dept-list">
+      {/* 2. Quick Category Pills */}
+      <section className="quick-explore-section">
+        <div className="section-container">
+          <h4 className="quick-explore-title">กรองด่วนตามแผนกวิชา</h4>
+          <div className="category-pills-container">
             <button 
-              className={`sidebar-dept-item ${selectedDept === 'ทั้งหมด' ? 'active' : ''}`}
-              onClick={() => { setSelectedDept('ทั้งหมด'); setIsFilterOpen(false); }}
+              className={`cat-pill-btn ${selectedDept === 'ทั้งหมด' ? 'active' : ''}`}
+              onClick={() => handleDeptSelect('ทั้งหมด')}
             >
               ทั้งหมด
             </button>
             {DEPARTMENTS.map(dept => (
               <button
                 key={dept}
-                className={`sidebar-dept-item ${selectedDept === dept ? 'active' : ''}`}
-                onClick={() => { setSelectedDept(dept); setIsFilterOpen(false); }}
-                title={dept}
+                className={`cat-pill-btn ${selectedDept === dept ? 'active' : ''}`}
+                onClick={() => handleDeptSelect(dept)}
               >
                 {dept}
               </button>
             ))}
           </div>
         </div>
+      </section>
 
-        {/* 4. Statistics Panel inside Sidebar (With Website view count) */}
-        <div className="sidebar-section stats-section">
-          <label className="sidebar-section-title">ภาพรวมข้อมูล</label>
-          <div className="sidebar-stats-card">
-            <div className="sidebar-stat-item">
-              <div className="stat-circle blue">
-                <BookOpen size={13} />
-              </div>
-              <span className="stat-label-text">สถานที่ทั้งหมด</span>
-              <strong className="stat-value-text">{stats.totalWp}</strong>
-            </div>
-            <div className="sidebar-stat-item">
-              <div className="stat-circle green">
-                <MessageSquare size={13} />
-              </div>
-              <span className="stat-label-text">รีวิวของรุ่นพี่</span>
-              <strong className="stat-value-text">{stats.totalRev}</strong>
-            </div>
-            <div className="sidebar-stat-item">
-              <div className="stat-circle yellow">
-                <Star size={13} />
-              </div>
-              <span className="stat-label-text">คะแนนเฉลี่ย</span>
-              <strong className="stat-value-text">{stats.avgRating}</strong>
-            </div>
-            <div className="sidebar-stat-item">
-              <div className="stat-circle red">
-                <Eye size={13} />
-              </div>
-              <span className="stat-label-text">ผู้เข้าชมเว็บไซต์</span>
-              <strong className="stat-value-text">{siteViews}</strong>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Right Grid Content (Floating Rounded Panel) */}
-      <main className="dashboard-content-box">
-        <div className="content-header-row animate-fade-in">
-          <div className="header-text-block">
-            <h2>รายชื่อสถานประกอบการแนะแนว</h2>
-            <p className="header-text-subtitle">
-              พบข้อมูลสถานประกอบการทั้งหมด <span className="subtitle-count-badge">{filteredWorkplaces.length}</span> แห่ง
-            </p>
-          </div>
+      {/* 3. Listings Section with Sidebar */}
+      <section className="directory-listings-section">
+        <div className="listings-container">
           
-          <div className="header-action-row">
-            <button className="btn btn-outline btn-mobile-filter" onClick={() => setIsFilterOpen(true)}>
-              <Filter size={16} />
-              <span>ตัวกรอง</span>
-            </button>
-            <button className="btn btn-primary btn-add-workplace" onClick={onAddWorkplaceClick}>
-              <Plus size={16} />
-              <span>ลงทะเบียนที่ใหม่</span>
-            </button>
-          </div>
-        </div>
+          {/* Main Listings Layout */}
+          <div className="listings-grid-layout">
+            {/* Sidebar Filters & Controls */}
+            <aside className="directory-sidebar">
+              <div className="sidebar-widget card">
+                <h4 className="widget-header">เรียงลำดับ</h4>
+                <div className="filter-item-wrapper">
+                  <select 
+                    className="sidebar-select-control"
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                  >
+                    <option value="rating">⭐ คะแนนรีวิวสูงสุด</option>
+                    <option value="reviews">💬 รีวิวมากที่สุด</option>
+                    <option value="name">🔤 ชื่อบริษัท (ก-ฮ)</option>
+                  </select>
+                </div>
+              </div>
 
-        {filteredWorkplaces.length > 0 ? (
-          <div className="wireframe-cards-grid animate-fade-in">
-            {filteredWorkplaces.map(wp => (
-              <WorkplaceCard 
-                key={wp.id} 
-                workplace={wp} 
-                onClick={onWorkplaceClick} 
-              />
-            ))}
+              <div className="sidebar-widget card register-widget-card">
+                <h4 className="widget-header">ลงทะเบียนเพิ่ม</h4>
+                <p className="widget-desc">
+                  หากพบสถานประกอบการแห่งใหม่นอกเหนือจากนี้ สามารถช่วยลงข้อมูลเพิ่มเติมเพื่อประโยชน์แก่รุ่นน้องได้
+                </p>
+                <button 
+                  className="btn btn-primary w-full btn-register-new"
+                  onClick={onAddWorkplaceClick}
+                >
+                  <Plus size={16} />
+                  <span>ลงทะเบียนที่ใหม่</span>
+                </button>
+              </div>
+
+              {/* Detailed Overview */}
+              <div className="sidebar-widget card stats-widget-card">
+                <h4 className="widget-header">ภาพรวมข้อมูล</h4>
+                <div className="overview-stats-grid">
+                  <div className="overview-stat-row">
+                    <span className="overview-stat-label">เรตติ้งเฉลี่ยสะสม</span>
+                    <strong className="overview-stat-value">⭐ {stats.avgRating} / 5.0</strong>
+                  </div>
+                  <div className="overview-stat-row">
+                    <span className="overview-stat-label">สาขาที่มีข้อมูลมากสุด</span>
+                    <strong className="overview-stat-value">เทคโนโลยีสารสนเทศ</strong>
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+            {/* Workplace Grid Area */}
+            <main className="directory-main-content">
+              <div className="listings-result-header">
+                <div className="result-headline-group">
+                  <h3>สถานประกอบการแนะนำ</h3>
+                  <p className="result-subtext">
+                    {selectedDept !== 'ทั้งหมด' ? `แผนกวิชา${selectedDept} ` : ''} 
+                    พบข้อมูลทั้งหมด <strong>{filteredWorkplaces.length}</strong> แห่ง
+                  </p>
+                </div>
+              </div>
+
+              {filteredWorkplaces.length > 0 ? (
+                <div className="workplace-directory-grid">
+                  {filteredWorkplaces.map(wp => (
+                    <WorkplaceCard 
+                      key={wp.id} 
+                      workplace={wp} 
+                      onClick={onWorkplaceClick} 
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="empty-search-state card">
+                  <SlidersHorizontal size={40} className="empty-state-icon" />
+                  <h4>ไม่พบข้อมูลสถานประกอบการ</h4>
+                  <p>ไม่พบรายการที่ตรงกับคำค้นหาของคุณ ลองเปลี่ยนคำค้นหาหรือตัวกรองวิชา</p>
+                  <button className="btn btn-secondary mt-4" onClick={onAddWorkplaceClick}>
+                    <Plus size={14} /> เพิ่มสถานประกอบการใหม่
+                  </button>
+                </div>
+              )}
+            </main>
           </div>
-        ) : (
-          <div className="empty-state card animate-scale-up">
-            <SlidersHorizontal size={44} className="empty-icon" />
-            <h3>ไม่พบข้อมูลสถานประกอบการ</h3>
-            <p>กรุณาลองพิมพ์ชื่อคำค้นหาใหม่อีกครั้ง หรือช่วยเพิ่มรายละเอียดของสถานที่ฝึกงานใหม่เข้าระบบ</p>
-            <button className="btn btn-secondary" onClick={onAddWorkplaceClick}>
-              <Plus size={14} /> เพิ่มสถานประกอบการใหม่
-            </button>
-          </div>
-        )}
-      </main>
+
+        </div>
+      </section>
 
       <style>{`
-        .dashboard-layout-wireframe {
-          display: flex;
+        .jobsdb-dashboard-layout {
           width: 100%;
-          height: calc(100vh - 72px);
+          min-height: 100vh;
+          background-color: var(--bg-main);
+          display: flex;
+          flex-direction: column;
+        }
+
+        /* 1. Hero Search Section */
+        .hero-banner {
+          background: linear-gradient(135deg, var(--dark-blue) 0%, #1e40af 50%, var(--primary) 100%);
           position: relative;
-          background-color: #f1f5f9;
+          color: white;
+          padding: 70px 24px 80px 24px;
+          text-align: center;
           overflow: hidden;
         }
 
-        /* Floating Sidebar under header */
-        .filter-sidebar-box {
-          width: 290px;
-          border-right: 1.5px solid var(--border-color) !important;
-          background-color: white;
-          padding: 24px;
-          display: flex;
-          flex-direction: column;
-          gap: 26px;
-          flex-shrink: 0;
-          
-          /* Floating Panel Effect */
-          margin: 24px 12px 24px 24px;
-          border-radius: var(--radius-lg);
-          border: none !important;
-          height: calc(100vh - 72px - 48px);
-          box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
-          overflow-y: auto;
-          scrollbar-width: thin;
-        }
-
-        .sidebar-header-mobile {
-          display: none;
-          justify-content: space-between;
-          align-items: center;
-          border-bottom: 1.5px solid var(--border-color);
-          padding-bottom: 14px;
-          margin-bottom: 8px;
-        }
-
-        .sidebar-header-mobile h4 {
-          font-weight: 850;
-          color: var(--navy);
-          font-size: 1.1rem;
-        }
-
-        .btn-close-filter {
-          background: #f1f5f9;
-          border: none;
-          color: var(--slate);
-          cursor: pointer;
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: var(--transition);
-        }
-
-        .btn-close-filter:hover {
-          background-color: #e2e8f0;
-          color: var(--navy);
-        }
-
-        .sidebar-section {
-          display: flex;
-          flex-direction: column;
-          text-align: left;
-        }
-
-        .sidebar-section-title {
-          font-size: 0.78rem;
-          font-weight: 800;
-          color: var(--navy);
-          text-transform: uppercase;
-          margin-bottom: 10px;
-          letter-spacing: 0.5px;
-          opacity: 0.85;
-        }
-
-        /* Search input box */
-        .sidebar-search-box {
-          position: relative;
-          display: flex;
-          align-items: center;
-        }
-
-        .sidebar-search-icon {
+        .hero-banner-glow {
           position: absolute;
-          left: 12px;
-          color: var(--slate);
+          top: -10%;
+          left: 30%;
+          width: 500px;
+          height: 500px;
+          background: radial-gradient(circle, rgba(14, 165, 233, 0.25) 0%, rgba(37, 99, 235, 0) 70%);
+          filter: blur(50px);
           pointer-events: none;
-          transition: var(--transition);
+          z-index: 1;
         }
 
-        .sidebar-search-input {
-          width: 100%;
-          padding: 10.5px 12px 10.5px 36px;
-          border: 1.5px solid var(--border-color);
-          border-radius: 8px;
-          outline: none;
-          font-size: 0.85rem;
-          background-color: var(--bg-main);
-          color: var(--navy);
-          font-weight: 500;
-          transition: all 0.3s ease;
-        }
-
-        .sidebar-search-input:focus {
-          border-color: var(--primary);
-          background-color: white;
-          box-shadow: 0 0 0 3.5px var(--primary-glow);
-        }
-
-        .sidebar-search-input:focus + .sidebar-search-icon {
-          color: var(--primary);
-        }
-
-        .sidebar-select {
-          width: 100%;
-          padding: 11px;
-          border: 1.5px solid var(--border-color);
-          border-radius: 8px;
-          background-color: var(--bg-main);
-          color: var(--navy);
-          font-weight: 700;
-          outline: none;
-          cursor: pointer;
-          font-size: 0.82rem;
-          transition: var(--transition);
-        }
-
-        .sidebar-select:focus {
-          border-color: var(--primary);
-          box-shadow: 0 0 0 3.5px var(--primary-glow);
-        }
-
-        /* Department scroll list */
-        .sidebar-dept-list {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          max-height: 250px;
-          overflow-y: auto;
-          padding-right: 6px;
-          scrollbar-width: thin;
-        }
-
-        .sidebar-dept-item {
-          width: 100%;
-          padding: 10px 12px;
-          border: none;
-          border-radius: 8px;
-          background-color: transparent;
-          color: var(--slate);
-          font-weight: 600;
-          font-size: 0.82rem;
-          cursor: pointer;
-          text-align: left;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          display: flex;
-          align-items: center;
-          gap: 10px;
+        .hero-banner-content {
+          max-width: 900px;
+          margin: 0 auto;
           position: relative;
+          z-index: 2;
         }
 
-        .sidebar-dept-item::before {
-          content: '';
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background-color: #cbd5e1;
-          flex-shrink: 0;
-          transition: all 0.25s ease;
-        }
-
-        .sidebar-dept-item:hover {
-          background-color: var(--primary-light);
-          color: var(--primary);
-          padding-left: 16px;
-        }
-
-        .sidebar-dept-item:hover::before {
-          background-color: var(--primary);
-        }
-
-        .sidebar-dept-item.active {
-          background-color: var(--primary-light);
-          color: var(--primary);
-          font-weight: 800;
-          padding-left: 16px;
-        }
-
-        .sidebar-dept-item.active::before {
-          background-color: var(--primary);
-          transform: scale(1.3);
-        }
-
-        /* Polished Stats card */
-        .sidebar-stats-card {
-          background-color: var(--primary-light);
-          border: 1px dashed var(--border-focus);
-          border-radius: var(--radius-md);
-          padding: 16px 14px;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .sidebar-stat-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .stat-circle {
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          box-shadow: var(--shadow-sm);
-        }
-
-        .stat-circle.blue {
-          background-color: white;
-          color: var(--primary);
-        }
-
-        .stat-circle.green {
-          background-color: white;
-          color: var(--success);
-        }
-
-        .stat-circle.yellow {
-          background-color: white;
-          color: var(--warning);
-        }
-        
-        .stat-circle.red {
-          background-color: white;
-          color: var(--danger);
-        }
-
-        .stat-label-text {
-          font-size: 0.76rem;
-          color: var(--slate);
-          font-weight: 600;
-        }
-
-        .stat-value-text {
-          font-size: 0.85rem;
-          font-weight: 800;
-          color: var(--navy);
-          margin-left: auto;
-        }
-
-        /* Right Content panel (Floating Rounded Card Box) */
-        .dashboard-content-box {
-          flex: 1;
-          background-color: white;
-          display: flex;
-          flex-direction: column;
-          gap: 28px;
-          overflow-y: auto;
-          scrollbar-width: thin;
-          
-          /* Floating Panel Layout Effect */
-          margin: 24px 24px 24px 12px;
-          border-radius: var(--radius-lg);
-          padding: 30px;
-          border: none !important;
-          height: calc(100vh - 72px - 48px);
-          box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
-        }
-
-        .content-header-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 16px;
-          flex-wrap: wrap;
-          border-bottom: 1.5px solid var(--border-color);
-          padding-bottom: 18px;
-        }
-
-        .header-text-block {
-          text-align: left;
-        }
-
-        .header-text-block h2 {
-          font-size: 1.5rem;
+        .hero-title {
+          font-size: 2.3rem;
           font-weight: 850;
-          color: var(--navy);
-          letter-spacing: -0.5px;
-          margin: 0;
-          line-height: 1.2;
-        }
-
-        .header-text-subtitle {
-          font-size: 0.85rem;
-          color: var(--slate);
-          font-weight: 500;
-          margin-top: 4px;
-        }
-
-        .subtitle-count-badge {
-          background-color: var(--primary);
+          letter-spacing: -1px;
+          margin-bottom: 12px;
           color: white;
-          padding: 1px 6px;
-          border-radius: 50px;
-          font-size: 0.72rem;
-          font-weight: 700;
-          margin: 0 2px;
+          line-height: 1.25;
         }
 
-        .header-action-row {
+        .hero-subtitle {
+          font-size: 1.05rem;
+          color: rgba(255, 255, 255, 0.85);
+          margin-bottom: 35px;
+          font-weight: 500;
+        }
+
+        /* Search Card Widget style like JobsDB */
+        .search-card-widget {
+          background-color: white;
+          border-radius: var(--radius-lg);
+          box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.12), 0 8px 16px -6px rgba(15, 23, 42, 0.08);
+          padding: 10px;
+          display: flex;
+          gap: 10px;
+          max-width: 850px;
+          margin: 0 auto 30px auto;
+          align-items: center;
+        }
+
+        .search-field {
           display: flex;
           align-items: center;
-          gap: 12px;
+          flex: 1;
+          height: 52px;
+          background: #f8fafc;
+          border-radius: var(--radius-md);
+          border: 1.5px solid transparent;
+          transition: var(--transition);
         }
 
-        .btn-mobile-filter {
-          display: none;
+        .search-field:focus-within {
+          border-color: var(--primary);
           background: white;
-          border: 1.5px solid var(--navy);
-          box-shadow: var(--shadow-sm);
+          box-shadow: 0 0 0 3px var(--primary-glow);
         }
 
-        .btn-add-workplace {
-          box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+        .keyword-field {
+          padding-left: 18px;
         }
 
-        /* Cards Grid */
-        .wireframe-cards-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-          gap: 24px;
+        .field-icon {
+          color: var(--slate);
+          margin-right: 12px;
+          flex-shrink: 0;
         }
 
-        .empty-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 60px 40px;
-          text-align: center;
-          gap: 16px;
+        .keyword-field input {
+          width: 100%;
+          border: none;
+          background: transparent;
+          outline: none;
+          color: var(--navy);
+          font-weight: 600;
+          font-size: 0.92rem;
         }
 
-        .empty-icon {
+        .keyword-field input::placeholder {
           color: var(--light-slate);
         }
 
-        /* Mobile adaptation drawer styles */
+        .select-field select {
+          width: 100%;
+          height: 100%;
+          border: none;
+          background: transparent;
+          outline: none;
+          color: var(--navy);
+          font-weight: 700;
+          padding: 0 16px;
+          cursor: pointer;
+          font-size: 0.92rem;
+          appearance: none;
+          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+          background-repeat: no-repeat;
+          background-position: right 16px center;
+          background-size: 16px;
+        }
+
+        .hero-search-btn {
+          height: 52px;
+          padding: 0 28px;
+          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+          border-radius: var(--radius-md);
+          border: none;
+          color: white;
+          font-weight: 750;
+          font-size: 0.95rem;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: var(--transition);
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .hero-search-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+        }
+
+        /* Stats in Hero */
+        .hero-stats-row {
+          display: flex;
+          justify-content: center;
+          gap: 20px;
+          flex-wrap: wrap;
+        }
+
+        .stat-pill-item {
+          background-color: rgba(255, 255, 255, 0.12);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 50px;
+          padding: 6px 18px;
+          font-size: 0.8rem;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: white;
+          font-weight: 550;
+        }
+
+        .stat-pill-icon {
+          flex-shrink: 0;
+        }
+        
+        .color-red { color: #f87171; }
+        .color-blue { color: #38bdf8; }
+        .color-green { color: #4ade80; }
+
+        /* 2. Quick Explore Section */
+        .quick-explore-section {
+          background: white;
+          border-bottom: 1.5px solid var(--border-color);
+          padding: 24px 0;
+        }
+
+        .section-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 24px;
+          text-align: left;
+        }
+
+        .quick-explore-title {
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          color: var(--slate);
+          margin-bottom: 12px;
+          font-weight: 800;
+        }
+
+        .category-pills-container {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .cat-pill-btn {
+          border: 1.5px solid var(--border-color);
+          background-color: transparent;
+          color: var(--slate);
+          padding: 8px 16px;
+          border-radius: 50px;
+          font-size: 0.82rem;
+          font-weight: 650;
+          cursor: pointer;
+          transition: var(--transition);
+        }
+
+        .cat-pill-btn:hover {
+          border-color: var(--primary);
+          color: var(--primary);
+          background-color: var(--primary-light);
+        }
+
+        .cat-pill-btn.active {
+          background-color: var(--primary);
+          border-color: var(--primary);
+          color: white;
+          font-weight: 750;
+          box-shadow: 0 4px 10px var(--primary-glow);
+        }
+
+        /* 3. Directory Listings Layout */
+        .directory-listings-section {
+          padding: 40px 0 60px 0;
+          flex: 1;
+        }
+
+        .listings-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 24px;
+        }
+
+        .listings-grid-layout {
+          display: grid;
+          grid-template-columns: 280px 1fr;
+          gap: 30px;
+          align-items: start;
+        }
+
+        /* Sidebar styles */
+        .directory-sidebar {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .sidebar-widget {
+          text-align: left;
+        }
+
+        .widget-header {
+          font-size: 0.85rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          color: var(--navy);
+          margin-bottom: 12px;
+          font-weight: 800;
+          border-bottom: 1.5px solid var(--border-color);
+          padding-bottom: 8px;
+        }
+
+        .sidebar-select-control {
+          width: 100%;
+          padding: 10.5px 12px;
+          border-radius: 8px;
+          border: 1.5px solid var(--border-color);
+          background-color: #f8fafc;
+          font-size: 0.85rem;
+          font-weight: 700;
+          outline: none;
+          color: var(--navy);
+          cursor: pointer;
+          transition: var(--transition);
+        }
+
+        .sidebar-select-control:focus {
+          border-color: var(--primary);
+          background-color: white;
+        }
+
+        .register-widget-card {
+          background: linear-gradient(135deg, var(--primary-light) 0%, rgba(37, 99, 235, 0.02) 100%);
+          border: 1.5px dashed var(--border-focus);
+        }
+
+        .widget-desc {
+          font-size: 0.78rem;
+          color: var(--slate);
+          line-height: 1.5;
+          margin-bottom: 16px;
+        }
+
+        .btn-register-new {
+          width: 100%;
+          border-radius: 8px;
+          padding: 11px;
+          font-size: 0.85rem;
+        }
+
+        .overview-stats-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .overview-stat-row {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .overview-stat-label {
+          font-size: 0.72rem;
+          color: var(--slate);
+          font-weight: 600;
+        }
+
+        .overview-stat-value {
+          font-size: 0.85rem;
+          color: var(--navy);
+          font-weight: 800;
+        }
+
+        /* Main Grid Area */
+        .directory-main-content {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        .listings-result-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          text-align: left;
+          border-bottom: 1.5px solid var(--border-color);
+          padding-bottom: 14px;
+        }
+
+        .result-headline-group h3 {
+          font-size: 1.25rem;
+          font-weight: 850;
+          color: var(--navy);
+          margin: 0;
+          letter-spacing: -0.5px;
+        }
+
+        .result-subtext {
+          font-size: 0.82rem;
+          color: var(--slate);
+          margin-top: 4px;
+        }
+
+        .result-subtext strong {
+          color: var(--primary);
+          font-weight: 750;
+        }
+
+        .workplace-directory-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+          gap: 24px;
+        }
+
+        .empty-search-state {
+          padding: 60px 40px;
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 14px;
+        }
+
+        .empty-state-icon {
+          color: var(--light-slate);
+        }
+
+        .empty-search-state h4 {
+          font-size: 1.1rem;
+          font-weight: 800;
+          color: var(--navy);
+          margin: 0;
+        }
+
+        .empty-search-state p {
+          font-size: 0.85rem;
+          color: var(--slate);
+          margin: 0;
+        }
+
+        .mt-4 { margin-top: 16px; }
+        .w-full { width: 100%; }
+
+        /* Responsive Breakpoints */
         @media (max-width: 900px) {
-          .btn-mobile-filter {
-            display: flex;
-            gap: 6px;
+          .listings-grid-layout {
+            grid-template-columns: 1fr;
           }
 
-          .dashboard-content-box {
-            margin: 16px;
-            height: calc(100vh - 72px - 32px);
+          .directory-sidebar {
+            order: 2; /* Move filters below grid on small screens or keep them organized */
           }
 
-          .filter-sidebar-box {
-            position: fixed;
-            left: -290px;
-            top: 72px;
-            bottom: 0;
-            z-index: 1001;
-            height: calc(100vh - 72px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 10px 0 30px rgba(15, 23, 42, 0.15);
-            border-right: none !important;
-            margin: 0;
-            border-radius: 0;
+          .hero-title {
+            font-size: 1.8rem;
           }
 
-          .filter-sidebar-box.mobile-open {
-            left: 0;
+          .search-card-widget {
+            flex-direction: column;
+            padding: 12px;
           }
 
-          .sidebar-header-mobile {
-            display: flex;
+          .search-field {
+            width: 100%;
           }
 
-          .filter-overlay-mobile {
-            position: fixed;
-            top: 72px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            z-index: 1000;
+          .hero-search-btn {
+            width: 100%;
+            justify-content: center;
           }
         }
       `}</style>
     </div>
   );
 }
+
