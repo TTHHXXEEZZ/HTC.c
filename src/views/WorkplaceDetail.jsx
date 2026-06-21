@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ArrowLeft, Globe, Phone, MapPin, Calendar, Briefcase, DollarSign, MessageSquare, Plus, ExternalLink, Image as ImageIcon, X, Eye } from 'lucide-react';
 import StarRating from '../components/StarRating';
 import DepartmentBadge from '../components/DepartmentBadge';
-import LocationMap from '../components/LocationMap';
+import MapLoader from '../components/MapLoader';
 
 export default function WorkplaceDetail({ workplace, reviews = [], onBackClick, onAddReviewClick }) {
   const [activePhoto, setActivePhoto] = useState(null); // For fullscreen lightbox
@@ -155,7 +155,7 @@ export default function WorkplaceDetail({ workplace, reviews = [], onBackClick, 
         {/* Bento Box 4: Map Location (Spans 1 column on desktop) */}
         <div className="bento-item bento-map card">
           <h3 className="bento-title">สถานที่ตั้ง</h3>
-          <LocationMap lat={lat} lng={lng} height="180px" />
+          <MapLoader lat={lat} lng={lng} height="180px" />
           <a 
             href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`} 
             target="_blank" 

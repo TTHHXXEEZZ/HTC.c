@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Search, Plus, SlidersHorizontal, BookOpen, MessageSquare, Star, X, Filter, Eye } from 'lucide-react';
-import { DEPARTMENTS } from '../services/api';
+import { DEPARTMENTS } from '../services/departments';
 import WorkplaceCard from '../components/WorkplaceCard';
 
 export default function Dashboard({ 

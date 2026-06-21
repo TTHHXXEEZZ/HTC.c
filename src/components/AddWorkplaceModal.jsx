@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Upload, MapPin } from 'lucide-react';
-import { DEPARTMENTS } from '../services/api';
-import LocationMap from './LocationMap';
+import { DEPARTMENTS } from '../services/departments';
+import MapLoader from './MapLoader';
 
 const WORKPLACE_CATEGORIES = [
   'เทคโนโลยีและซอฟต์แวร์',
@@ -196,7 +196,7 @@ export default function AddWorkplaceModal({ onClose, onSubmit }) {
             <div className="form-group">
               <label className="form-label">ปักหมุดพิกัดแผนที่ (Google Maps / OpenStreetMap)</label>
               <div className="map-picker-container">
-                <LocationMap 
+                <MapLoader 
                   lat={lat} 
                   lng={lng} 
                   interactive={true} 

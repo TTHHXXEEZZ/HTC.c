@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Next.js
+.next/
+out/
+
+# Database / SQLite
+*.db
+*.db-journal
+
+# Environment variables
+.env
+.env*.local

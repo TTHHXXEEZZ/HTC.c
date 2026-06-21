@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Star, Upload, Trash2, Camera } from 'lucide-react';
-import { DEPARTMENTS } from '../services/api';
+import { DEPARTMENTS } from '../services/departments';
 import StarRating from './StarRating';
 
 export default function AddReviewModal({ user, workplace, onClose, onSubmit }) {

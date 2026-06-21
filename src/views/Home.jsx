@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Search, BookOpen, MessageSquare, Eye, ArrowRight } from 'lucide-react';
-import { DEPARTMENTS } from '../services/api';
+import { DEPARTMENTS } from '../services/departments';
 
 export default function Home({ workplaces = [], siteViews = 0, onSearch, onWorkplaceClick }) {
   const [tempSearch, setTempSearch] = useState('');

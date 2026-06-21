@@ -1,18 +1,24 @@
+"use client";
 import React from 'react';
 import { LogOut, BookOpen, User } from 'lucide-react';
-import { logout } from '../services/auth';
+import { useSession, signOut } from 'next-auth/react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-export default function Header({ user, onLogout, onHomeClick, currentPage, onNavChange }) {
+export default function Header() {
+  const { data: session } = useSession();
+  const pathname = usePathname();
+  const user = session?.user;
+
   const handleLogout = () => {
-    logout();
-    onLogout();
+    signOut({ callbackUrl: "/login" });
   };
 
   return (
     <header className="site-header">
       <div className="header-container">
         {/* Left Side: Branding (aligned far-left) */}
-        <div className="header-brand" onClick={onHomeClick}>
+        <Link href="/" className="header-brand">
           <div className="brand-logo">
             <BookOpen size={20} className="brand-icon" />
           </div>
@@ -22,23 +28,23 @@ export default function Header({ user, onLogout, onHomeClick, currentPage, onNav
               <span className="subtitle-dot"></span> ฐานข้อมูลสถานประกอบการและการฝึกงาน
             </span>
           </div>
-        </div>
+        </Link>
 
         {/* Navigation Tabs */}
         {user && (
           <nav className="header-nav">
-            <button 
-              className={`nav-link-btn ${currentPage === 'home' ? 'active' : ''}`}
-              onClick={() => onNavChange('home')}
+            <Link 
+              href="/" 
+              className={`nav-link-btn ${pathname === '/' ? 'active' : ''}`}
             >
               หน้าแรก
-            </button>
-            <button 
-              className={`nav-link-btn ${currentPage === 'dashboard' ? 'active' : ''}`}
-              onClick={() => onNavChange('dashboard')}
+            </Link>
+            <Link 
+              href="/dashboard" 
+              className={`nav-link-btn ${pathname === '/dashboard' ? 'active' : ''}`}
             >
               แดชบอร์ด
-            </button>
+            </Link>
           </nav>
         )}
 
@@ -51,8 +57,8 @@ export default function Header({ user, onLogout, onHomeClick, currentPage, onNav
             </div>
             
             <div className="avatar-wrapper">
-              {user.photoUrl ? (
-                <img src={user.photoUrl} alt={user.name} className="user-avatar" />
+              {user.image ? (
+                <img src={user.image} alt={user.name} className="user-avatar" />
               ) : (
                 <div className="user-avatar-placeholder">
                   <User size={16} />
@@ -70,35 +76,6 @@ export default function Header({ user, onLogout, onHomeClick, currentPage, onNav
       </div>
 
       <style>{`
-        .header-nav {
-          display: flex;
-          gap: 12px;
-          align-items: center;
-        }
-
-        .nav-link-btn {
-          background: transparent;
-          border: none;
-          color: var(--slate);
-          font-weight: 750;
-          font-size: 0.88rem;
-          padding: 8px 18px;
-          border-radius: 50px;
-          cursor: pointer;
-          transition: var(--transition);
-        }
-
-        .nav-link-btn:hover {
-          color: var(--primary);
-          background-color: var(--primary-light);
-        }
-
-        .nav-link-btn.active {
-          color: var(--primary);
-          background-color: var(--primary-light);
-          box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.15);
-        }
-
         .site-header {
           background: rgba(255, 255, 255, 0.85);
           backdrop-filter: blur(16px);
@@ -114,7 +91,6 @@ export default function Header({ user, onLogout, onHomeClick, currentPage, onNav
         }
         
         .header-container {
-          /* Extended width fully to screen edges based on user red arrow requirements */
           width: 100%;
           max-width: 100%;
           padding: 0 32px;
@@ -130,6 +106,7 @@ export default function Header({ user, onLogout, onHomeClick, currentPage, onNav
           gap: 12px;
           cursor: pointer;
           user-select: none;
+          text-decoration: none;
           transition: var(--transition);
         }
 
@@ -194,6 +171,36 @@ export default function Header({ user, onLogout, onHomeClick, currentPage, onNav
         @keyframes blink {
           0%, 100% { opacity: 0.4; }
           50% { opacity: 1; }
+        }
+
+        .header-nav {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+        }
+
+        .nav-link-btn {
+          background: transparent;
+          border: none;
+          color: var(--slate);
+          font-weight: 750;
+          font-size: 0.88rem;
+          padding: 8px 18px;
+          border-radius: 50px;
+          cursor: pointer;
+          text-decoration: none;
+          transition: var(--transition);
+        }
+
+        .nav-link-btn:hover {
+          color: var(--primary);
+          background-color: var(--primary-light);
+        }
+
+        .nav-link-btn.active {
+          color: var(--primary);
+          background-color: var(--primary-light);
+          box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.15);
         }
 
         .user-profile {
