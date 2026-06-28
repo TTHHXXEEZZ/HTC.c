@@ -29,19 +29,54 @@ model Workplace {
   lng           Float
   coverImage    String
   views         Int      @default(0)
+  approved      Boolean  @default(false)
   reviews       Review[]
   createdAt     DateTime @default(now())
 }
 
 model Review {
-  id           String    @id @default(uuid())
-  workplaceId  String
-  workplace    Workplace @relation(fields: [workplaceId], references: [id], onDelete: Cascade)
-  reviewerName String
-  reviewerDept String
-  rating       Int
-  content      String
-  createdAt    DateTime  @default(now())
+  id            String    @id @default(uuid())
+  workplaceId   String
+  workplace     Workplace @relation(fields: [workplaceId], references: [id], onDelete: Cascade)
+  reviewerName  String
+  reviewerDept  String
+  rating        Int
+  content       String
+  agreeCount    Int       @default(0)
+  disagreeCount Int       @default(0)
+  approved      Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+}
+
+model InternshipJob {
+  id           String   @id @default(uuid())
+  title        String
+  companyName  String
+  description  String
+  requirements String
+  contact      String
+  department   String
+  salary       String?
+  createdAt    DateTime @default(now())
+}
+
+model StudentProfile {
+  id               String   @id @default(uuid())
+  name             String
+  email            String   @unique
+  department       String
+  bio              String
+  skills           String
+  portfolioUrl     String?
+  contact          String
+  certificateImage String?
+  createdAt        DateTime @default(now())
+}
+
+model AdminEmail {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
 }
 
 model SiteView {

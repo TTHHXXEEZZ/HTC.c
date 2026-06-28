@@ -5,10 +5,21 @@ import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import { checkIsAdminAction } from '../app/actions';
+
 export default function Header() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const user = session?.user;
+  const [isAdmin, setIsAdmin] = React.useState(false);
+
+  React.useEffect(() => {
+    if (user?.email) {
+      checkIsAdminAction(user.email).then(res => setIsAdmin(res));
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user]);
 
   const handleLogout = () => {
     signOut({ callbackUrl: "/login" });
@@ -23,7 +34,7 @@ export default function Header() {
             <BookOpen size={20} className="brand-icon" />
           </div>
           <div className="brand-text">
-            <h1>HTC Workplace Connect</h1>
+            <h1>Hatyai Technical College Insight</h1>
             <span className="brand-subtitle">
               <span className="subtitle-dot"></span> ฐานข้อมูลสถานประกอบการและการฝึกงาน
             </span>
@@ -45,6 +56,26 @@ export default function Header() {
             >
               แดชบอร์ด
             </Link>
+            <Link 
+              href="/jobs" 
+              className={`nav-link-btn ${pathname === '/jobs' ? 'active' : ''}`}
+            >
+              ประกาศรับสมัคร
+            </Link>
+            <Link 
+              href="/interns" 
+              className={`nav-link-btn ${pathname === '/interns' ? 'active' : ''}`}
+            >
+              ฝากพอร์ตโฟลิโอ
+            </Link>
+            {isAdmin && (
+              <Link 
+                href="/admin" 
+                className={`nav-link-btn admin-badge-nav ${pathname === '/admin' ? 'active' : ''}`}
+              >
+                ⚙️ จัดการระบบ
+              </Link>
+            )}
           </nav>
         )}
 
@@ -201,6 +232,16 @@ export default function Header() {
           color: var(--primary);
           background-color: var(--primary-light);
           box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.15);
+        }
+
+        .admin-badge-nav {
+          border: 1px dashed var(--danger) !important;
+          color: var(--danger) !important;
+        }
+
+        .admin-badge-nav:hover, .admin-badge-nav.active {
+          background-color: #fef2f2 !important;
+          border-style: solid !important;
         }
 
         .user-profile {

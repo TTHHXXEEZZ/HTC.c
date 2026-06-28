@@ -3,7 +3,7 @@ import Header from "../components/Header";
 import SessionProvider from "../components/SessionProvider";
 
 export const metadata = {
-  title: "HTC Workplace Connect",
+  title: "Hatyai Technical College Insight",
   description: "ฐานข้อมูลแนะแนวและการฝึกงาน วิทยาลัยเทคนิคหาดใหญ่ (HTC)",
 };
 

@@ -12,9 +12,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email) return null;
         const email = credentials.email.toLowerCase();
-        if (!email.endsWith("@htc.ac.th")) {
-          throw new Error("กรุณาเข้าสู่ระบบด้วยบัญชี Google ของวิทยาลัย (@htc.ac.th) เท่านั้น");
-        }
+
 
         const defaultPhotos = [
           "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",

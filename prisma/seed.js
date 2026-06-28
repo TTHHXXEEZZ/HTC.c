@@ -157,14 +157,14 @@ async function main() {
   // Create workplaces
   for (const wp of initialWorkplaces) {
     await prisma.workplace.create({
-      data: wp
+      data: { ...wp, approved: true }
     });
   }
 
   // Create reviews
   for (const rev of initialReviews) {
     await prisma.review.create({
-      data: rev
+      data: { ...rev, approved: true }
     });
   }
 

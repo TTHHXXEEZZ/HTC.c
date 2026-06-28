@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Search, BookOpen, MessageSquare, Eye, ArrowRight } from 'lucide-react';
+import { Search, BookOpen, MessageSquare, Eye, ArrowRight, Plus } from 'lucide-react';
 import { DEPARTMENTS } from '../services/departments';
 
-export default function Home({ workplaces = [], siteViews = 0, onSearch, onWorkplaceClick }) {
+export default function Home({ workplaces = [], siteViews = 0, onSearch, onWorkplaceClick, onRegisterClick }) {
   const [tempSearch, setTempSearch] = useState('');
   const [tempDept, setTempDept] = useState('ทั้งหมด');
 
@@ -37,6 +37,11 @@ export default function Home({ workplaces = [], siteViews = 0, onSearch, onWorkp
       {/* 1. JobsDB Style Blue Hero Banner */}
       <section className="portal-hero">
         <div className="portal-hero-overlay"></div>
+        <img 
+          src="/htc-logo.png" 
+          alt="HTC Logo Watermark" 
+          className="hero-background-logo animate-fade-in"
+        />
         <div className="portal-hero-content animate-fade-in">
           <h1 className="portal-title">ค้นหาสถานประกอบการฝึกงานที่ดีที่สุด</h1>
           <p className="portal-subtitle">
@@ -91,27 +96,41 @@ export default function Home({ workplaces = [], siteViews = 0, onSearch, onWorkp
         </div>
       </section>
 
-      {/* 2. Popular Categories Exploration */}
-      <section className="portal-categories-section">
+      {/* 2. Main Actions Section */}
+      <section className="portal-actions-section">
         <div className="portal-container">
-          <div className="section-header-row">
-            <h3>กรองด่วนตามแผนกวิชา</h3>
-            <p>เลือกแผนกวิชาที่คุณสนใจเพื่อค้นหาทันที</p>
-          </div>
-          <div className="categories-pill-grid">
-            {DEPARTMENTS.map(dept => (
-              <button 
-                key={dept} 
-                className="category-pill-card"
-                onClick={() => handleQuickDeptClick(dept)}
-              >
-                <span>{dept}</span>
-                <ArrowRight size={14} className="arrow-icon" />
-              </button>
-            ))}
+          <div className="actions-card-grid animate-fade-in">
+            <button type="button" className="action-card-item card-blue" onClick={() => onSearch('', 'ทั้งหมด')}>
+              <div className="action-card-icon-wrapper">
+                <Search size={36} />
+              </div>
+              <div className="action-card-text">
+                <h3>หาสถานประกอบการ</h3>
+                <p>ค้นหาแหล่งฝึกงาน ทักษะที่ต้องการ และข้อมูลรีวิวจากรุ่นพี่เพื่อเตรียมความพร้อมสู่โลกการทำงานจริง</p>
+                <span className="action-card-btn-link">
+                  <span>ค้นหาข้อมูลตอนนี้</span>
+                  <ArrowRight size={16} />
+                </span>
+              </div>
+            </button>
+
+            <button type="button" className="action-card-item card-green" onClick={onRegisterClick}>
+              <div className="action-card-icon-wrapper">
+                <Plus size={36} />
+              </div>
+              <div className="action-card-text">
+                <h3>ลงทะเบียนสถานประกอบการใหม่</h3>
+                <p>ร่วมกันสร้างชุมชนการเรียนรู้และแบ่งปันรายชื่อสถานที่ฝึกงานแห่งใหม่ให้รุ่นน้องได้รับโอกาสที่ดีขึ้น</p>
+                <span className="action-card-btn-link">
+                  <span>กรอกข้อมูลลงทะเบียน</span>
+                  <ArrowRight size={16} />
+                </span>
+              </div>
+            </button>
           </div>
         </div>
       </section>
+
 
       {/* 3. Infinite Sliding Showcase (เลื่อนไปเรื่อยๆ) */}
       <section className="portal-marquee-section">
@@ -182,7 +201,38 @@ export default function Home({ workplaces = [], siteViews = 0, onSearch, onWorkp
           pointer-events: none;
         }
 
+        .hero-background-logo {
+          position: absolute;
+          right: 5%;
+          top: 50%;
+          transform: translateY(-50%) rotate(-12deg);
+          width: 250px;
+          height: auto;
+          opacity: 0.22;
+          pointer-events: none;
+          user-select: none;
+          filter: invert(1);
+          mix-blend-mode: screen;
+          z-index: 1;
+        }
+
+        @media (max-width: 1024px) {
+          .hero-background-logo {
+            width: 180px;
+            right: 2%;
+            opacity: 0.15;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .hero-background-logo {
+            display: none;
+          }
+        }
+
         .portal-hero-content {
+          position: relative;
+          z-index: 2;
           max-width: 900px;
           margin: 0 auto;
         }
@@ -319,78 +369,142 @@ export default function Home({ workplaces = [], siteViews = 0, onSearch, onWorkp
         .icon-blue { color: #38bdf8; }
         .icon-green { color: #4ade80; }
 
-        /* 2. Categories */
-        .portal-categories-section {
-          padding: 55px 0;
+        /* 2. Action Cards Section */
+        .portal-actions-section {
+          padding: 80px 0;
           background-color: white;
           border-bottom: 1.5px solid var(--border-color);
         }
 
-        .portal-container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 24px;
-        }
-
-        .section-header-row {
-          margin-bottom: 30px;
-          text-align: left;
-        }
-
-        .section-header-row h3 {
-          font-size: 1.45rem;
-          font-weight: 850;
-          color: var(--navy);
-          margin-bottom: 4px;
-          letter-spacing: -0.5px;
-        }
-
-        .section-header-row p {
-          font-size: 0.88rem;
-          color: var(--slate);
-          margin: 0;
-        }
-
-        .categories-pill-grid {
+        .actions-card-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-          gap: 12px;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 32px;
+          max-width: 1100px;
+          margin: 0 auto;
         }
 
-        .category-pill-card {
+        .action-card-item {
           display: flex;
+          flex-direction: column;
+          align-items: flex-start;
           justify-content: space-between;
-          align-items: center;
-          padding: 14px 20px;
-          background-color: var(--bg-main);
+          gap: 20px;
+          padding: 32px 30px;
+          min-height: 230px;
+          border-radius: var(--radius-lg);
           border: 1.5px solid var(--border-color);
-          border-radius: var(--radius-md);
-          color: var(--navy);
-          font-weight: 700;
-          font-size: 0.88rem;
+          background-color: var(--bg-main);
           cursor: pointer;
-          transition: var(--transition);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           text-align: left;
-        }
-
-        .category-pill-card:hover {
-          border-color: var(--primary);
-          background-color: var(--primary-light);
-          color: var(--primary);
-          transform: translateY(-2px);
+          width: 100%;
+          outline: none;
           box-shadow: var(--shadow-sm);
         }
 
-        .category-pill-card .arrow-icon {
-          opacity: 0;
-          transform: translateX(-5px);
-          transition: var(--transition);
+        .action-card-item:hover {
+          transform: translateY(-8px);
+          box-shadow: var(--shadow-xl);
+        }
+
+        .card-blue {
+          border-left: 6px solid var(--primary);
+        }
+
+        .card-blue:hover {
+          border-color: var(--primary);
+          background-color: var(--primary-light);
+        }
+
+        .card-green {
+          border-left: 6px solid var(--success);
+        }
+
+        .card-green:hover {
+          border-color: var(--success);
+          background-color: #ecfdf5;
+        }
+
+        .action-card-icon-wrapper {
+          width: 68px;
+          height: 68px;
+          border-radius: var(--radius-md);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          transition: all 0.3s ease;
+        }
+
+        .card-blue .action-card-icon-wrapper {
+          background-color: var(--primary-light);
           color: var(--primary);
         }
 
-        .category-pill-card:hover .arrow-icon {
-          opacity: 1;
-          transform: translateX(0);
+        .card-blue:hover .action-card-icon-wrapper {
+          background-color: var(--primary);
+          color: white;
+          transform: scale(1.1) rotate(5deg);
+        }
+
+        .card-green .action-card-icon-wrapper {
+          background-color: #e6f4ea;
+          color: var(--success);
+        }
+
+        .card-green:hover .action-card-icon-wrapper {
+          background-color: var(--success);
+          color: white;
+          transform: scale(1.1) rotate(5deg);
+        }
+
+        .action-card-text {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .action-card-text h3 {
+          font-size: 1.45rem;
+          font-weight: 850;
+          color: var(--navy);
+          margin: 0;
+        }
+
+        .action-card-text p {
+          font-size: 0.95rem;
+          color: var(--slate);
+          margin: 0;
+          line-height: 1.6;
+          opacity: 0.9;
+        }
+
+        .action-card-btn-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.9rem;
+          font-weight: 800;
+          margin-top: 10px;
+          transition: all 0.2s ease;
+        }
+
+        .card-blue .action-card-btn-link {
+          color: var(--primary);
+        }
+
+        .card-green .action-card-btn-link {
+          color: var(--success);
+        }
+
+        .action-card-item:hover .action-card-btn-link {
+          gap: 10px;
+        }
+
+        .action-card-item:hover .action-card-btn-link span {
+          text-decoration: underline;
         }
 
         /* 3. Infinite Scrolling Marquee */

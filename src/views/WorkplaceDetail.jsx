@@ -1,11 +1,28 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Globe, Phone, MapPin, Calendar, Briefcase, DollarSign, MessageSquare, Plus, ExternalLink, Image as ImageIcon, X, Eye } from 'lucide-react';
+import { ArrowLeft, Globe, Phone, MapPin, Calendar, Briefcase, DollarSign, MessageSquare, Plus, ExternalLink, Image as ImageIcon, X, Eye, Share2, ThumbsUp, ThumbsDown } from 'lucide-react';
 import StarRating from '../components/StarRating';
 import DepartmentBadge from '../components/DepartmentBadge';
 import MapLoader from '../components/MapLoader';
 
-export default function WorkplaceDetail({ workplace, reviews = [], onBackClick, onAddReviewClick }) {
+
+export default function WorkplaceDetail({ workplace, reviews = [], onBackClick, onAddReviewClick, onVoteClick, hasReviewAccess = false, votedReviews = {} }) {
   const [activePhoto, setActivePhoto] = useState(null); // For fullscreen lightbox
+
+  const handleShareCopy = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url);
+    alert('คัดลอกลิงก์ไปยังคลิปบอร์ดแล้ว!');
+  };
+
+  const handleShareFacebook = () => {
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+  };
+
+  const handleShareLine = () => {
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://social-plugins.line.me/lineit/share?url=${url}`, '_blank');
+  };
 
   const { name, category, description, address, website, phone, department, lat, lng, averageRating, totalReviews, coverImage, views } = workplace;
 
@@ -72,12 +89,20 @@ export default function WorkplaceDetail({ workplace, reviews = [], onBackClick, 
               </div>
               <h2 className="detail-title">{name}</h2>
               <div className="rating-overview">
-                <div className="star-block">
-                  <StarRating rating={averageRating} size={18} />
-                  <span className="rating-num">{averageRating || '0.0'}</span>
-                </div>
-                <span className="divider">•</span>
-                <span className="reviews-count-text">{totalReviews} รีวิวจากเพื่อนนักศึกษา</span>
+                {hasReviewAccess ? (
+                  <>
+                    <div className="star-block">
+                      <StarRating rating={averageRating} size={18} />
+                      <span className="rating-num">{averageRating || '0.0'}</span>
+                    </div>
+                    <span className="divider">•</span>
+                    <span className="reviews-count-text">{totalReviews} รีวิวจากเพื่อนนักศึกษา</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="reviews-count-text">🔒 รีวิวและคะแนนดาวถูกจำกัดสิทธิ์</span>
+                  </>
+                )}
                 <span className="divider">•</span>
                 {/* Workplace individual view count displayed next to reviews */}
                 <span className="views-count-text">
@@ -85,9 +110,11 @@ export default function WorkplaceDetail({ workplace, reviews = [], onBackClick, 
                   <span>มีผู้เข้าชม {views || 0} ครั้ง</span>
                 </span>
               </div>
-              <button className="btn btn-primary btn-write-review" onClick={onAddReviewClick}>
-                <Plus size={16} /> เขียนรีวิวแชร์ประสบการณ์
-              </button>
+              {hasReviewAccess && (
+                <button className="btn btn-primary btn-write-review" onClick={onAddReviewClick}>
+                  <Plus size={16} /> เขียนรีวิวแชร์ประสบการณ์
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -95,32 +122,41 @@ export default function WorkplaceDetail({ workplace, reviews = [], onBackClick, 
         {/* Bento Box 2: Review Stats Summary (Spans 1 column on desktop) */}
         <div className="bento-item bento-stats card">
           <h3 className="bento-title">สรุปคะแนนประเมิน</h3>
-          <div className="rating-analytics-summary">
-            <div className="avg-rating-big">
-              <span className="rating-big-value">{averageRating || '0.0'}</span>
-              <StarRating rating={averageRating} size={14} />
-              <span className="total-reviews-count">{reviews.length} รีวิว</span>
-            </div>
-            <div className="rating-bars-list">
-              {[5, 4, 3, 2, 1].map((stars) => (
-                <div key={stars} className="rating-bar-row">
-                  <span className="bar-label">{stars} ดาว</span>
-                  <div className="bar-track">
-                    <div className="bar-fill" style={{ width: `${ratingProgress(stars)}%` }}></div>
-                  </div>
-                  <span className="bar-count">{stats.counts[stars] || 0}</span>
+          {hasReviewAccess ? (
+            <>
+              <div className="rating-analytics-summary">
+                <div className="avg-rating-big">
+                  <span className="rating-big-value">{averageRating || '0.0'}</span>
+                  <StarRating rating={averageRating} size={14} />
+                  <span className="total-reviews-count">{reviews.length} รีวิว</span>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {stats.avgAllowance && (
-            <div className="allowance-stat-card">
-              <DollarSign size={20} className="stat-money-icon" />
-              <div className="stat-money-info">
-                <span className="stat-money-title">ค่าตอบแทนเฉลี่ยโดยประมาณ</span>
-                <span className="stat-money-value">{stats.avgAllowance} บาท/วัน</span>
+                <div className="rating-bars-list">
+                  {[5, 4, 3, 2, 1].map((stars) => (
+                    <div key={stars} className="rating-bar-row">
+                      <span className="bar-label">{stars} ดาว</span>
+                      <div className="bar-track">
+                        <div className="bar-fill" style={{ width: `${ratingProgress(stars)}%` }}></div>
+                      </div>
+                      <span className="bar-count">{stats.counts[stars] || 0}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              {stats.avgAllowance && (
+                <div className="allowance-stat-card">
+                  <DollarSign size={20} className="stat-money-icon" />
+                  <div className="stat-money-info">
+                    <span className="stat-money-title">ค่าตอบแทนเฉลี่ยโดยประมาณ</span>
+                    <span className="stat-money-value">{stats.avgAllowance} บาท/วัน</span>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="stats-locked-overlay" style={{ padding: '20px 10px', textAlign: 'center', color: 'var(--slate)' }}>
+              <span className="lock-icon" style={{ fontSize: '28px', display: 'block', marginBottom: '12px' }}>🔒</span>
+              <p style={{ fontSize: '0.82rem', lineHeight: 1.4 }}>ค่าตอบแทนเฉลี่ยและสถิติคะแนนรีวิวสามารถเข้าถึงได้เฉพาะนักศึกษาวิทยาลัยเทคนิคหาดใหญ่เท่านั้น</p>
             </div>
           )}
         </div>
@@ -150,6 +186,18 @@ export default function WorkplaceDetail({ workplace, reviews = [], onBackClick, 
               <span>{address}</span>
             </div>
           </div>
+
+          <div className="share-section">
+            <span className="share-title">
+              <Share2 size={14} />
+              แชร์หน้านี้:
+            </span>
+            <div className="share-buttons">
+              <button onClick={handleShareCopy} className="btn-share copy">คัดลอกลิงก์</button>
+              <button onClick={handleShareFacebook} className="btn-share fb">Facebook</button>
+              <button onClick={handleShareLine} className="btn-share line">LINE</button>
+            </div>
+          </div>
         </div>
 
         {/* Bento Box 4: Map Location (Spans 1 column on desktop) */}
@@ -171,13 +219,23 @@ export default function WorkplaceDetail({ workplace, reviews = [], onBackClick, 
         {/* Bento Box 5: Reviews (Spans 3 columns/full-width on desktop) */}
         <div className="bento-item bento-reviews card">
           <div className="reviews-header">
-            <h3 className="bento-title">รีวิวประสบการณ์ฝึกงาน ({reviews.length})</h3>
-            <button className="btn btn-secondary btn-sm-review" onClick={onAddReviewClick}>
-              เขียนรีวิวใหม่
-            </button>
+            <h3 className="bento-title">รีวิวประสบการณ์ฝึกงาน {hasReviewAccess ? `(${reviews.length})` : ''}</h3>
+            {hasReviewAccess && (
+              <button className="btn btn-secondary btn-sm-review" onClick={onAddReviewClick}>
+                เขียนรีวิวใหม่
+              </button>
+            )}
           </div>
 
-          {reviews.length > 0 ? (
+          {!hasReviewAccess ? (
+            <div className="reviews-locked-state" style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--slate)' }}>
+              <span className="lock-icon" style={{ fontSize: '48px', display: 'block', marginBottom: '16px' }}>🔒</span>
+              <h4 style={{ color: 'var(--navy)', fontWeight: 800, fontSize: '1.1rem', marginBottom: '10px' }}>สงวนสิทธิ์การเข้าถึงรีวิวเฉพาะนักศึกษา HTC</h4>
+              <p style={{ fontSize: '0.88rem', maxWidth: '460px', margin: '0 auto', lineHeight: 1.5 }}>
+                ความคิดเห็นและผลการรีวิวจะแสดงให้เห็นเฉพาะผู้ใช้งานที่ลงชื่อเข้าใช้ด้วยบัญชีอีเมลวิทยาลัยที่ลงท้ายด้วย <strong>@htc.ac.th</strong> เท่านั้นเพื่อเหตุผลความปลอดภัยของข้อมูล
+              </p>
+            </div>
+          ) : reviews.length > 0 ? (
             <div className="reviews-timeline">
               {reviews.map(review => (
                 <div key={review.id} className="review-card">
@@ -219,6 +277,27 @@ export default function WorkplaceDetail({ workplace, reviews = [], onBackClick, 
                   </div>
 
                   <p className="review-comment">"{review.comments}"</p>
+
+                  <div className="review-vote-row">
+                    <button 
+                      onClick={() => onVoteClick && onVoteClick(review.id, 'agree')} 
+                      className={`btn-vote btn-vote-agree ${votedReviews[review.id] === 'agree' ? 'voted' : ''} ${votedReviews[review.id] ? 'disabled' : ''}`}
+                      disabled={!!votedReviews[review.id]}
+                      title="เห็นด้วยกับรีวิวนี้"
+                    >
+                      <ThumbsUp size={13} />
+                      <span>เห็นด้วย ({review.agreeCount || 0})</span>
+                    </button>
+                    <button 
+                      onClick={() => onVoteClick && onVoteClick(review.id, 'disagree')} 
+                      className={`btn-vote btn-vote-disagree ${votedReviews[review.id] === 'disagree' ? 'voted' : ''} ${votedReviews[review.id] ? 'disabled' : ''}`}
+                      disabled={!!votedReviews[review.id]}
+                      title="ไม่เห็นด้วยกับรีวิวนี้"
+                    >
+                      <ThumbsDown size={13} />
+                      <span>ไม่เห็นด้วย ({review.disagreeCount || 0})</span>
+                    </button>
+                  </div>
 
                   {review.photos && review.photos.length > 0 && (
                     <div className="review-photo-gallery">
@@ -867,6 +946,128 @@ export default function WorkplaceDetail({ workplace, reviews = [], onBackClick, 
 
         .lightbox-close:hover {
           background-color: rgba(239, 68, 68, 0.8);
+        }
+
+        /* Share system styling */
+        .share-section {
+          margin-top: 24px;
+          padding-top: 18px;
+          border-top: 1px solid var(--border-color);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+
+        .share-title {
+          font-size: 0.8rem;
+          font-weight: 750;
+          color: var(--navy);
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .share-buttons {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .btn-share {
+          font-size: 0.75rem;
+          font-weight: 700;
+          padding: 6px 12px;
+          border-radius: 50px;
+          border: 1px solid var(--border-color);
+          background: white;
+          cursor: pointer;
+          transition: var(--transition);
+        }
+
+        .btn-share.copy:hover {
+          background-color: var(--primary-light);
+          color: var(--primary);
+          border-color: var(--primary);
+        }
+
+        .btn-share.fb {
+          color: #1877f2;
+          border-color: #1877f2;
+        }
+
+        .btn-share.fb:hover {
+          background-color: #1877f2;
+          color: white;
+        }
+
+        .btn-share.line {
+          color: #06c755;
+          border-color: #06c755;
+        }
+
+        .btn-share.line:hover {
+          background-color: #06c755;
+          color: white;
+        }
+
+        /* Voting comment buttons */
+        .review-vote-row {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 16px;
+        }
+
+        .btn-vote {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.72rem;
+          font-weight: 700;
+          padding: 6px 14px;
+          border-radius: 50px;
+          cursor: pointer;
+          transition: var(--transition);
+          background: white;
+          border: 1px solid var(--border-color);
+        }
+
+        .btn-vote-agree {
+          color: var(--success);
+          border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-vote-agree:hover {
+          background-color: #ecfdf5;
+          border-color: var(--success);
+        }
+
+        .btn-vote-disagree {
+          color: var(--danger);
+          border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-vote-disagree:hover {
+          background-color: #fef2f2;
+          border-color: var(--danger);
+        }
+
+        .btn-vote.disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          pointer-events: none;
+        }
+
+        .btn-vote-agree.voted {
+          background-color: var(--success) !important;
+          color: white !important;
+          border-color: var(--success) !important;
+        }
+
+        .btn-vote-disagree.voted {
+          background-color: var(--danger) !important;
+          color: white !important;
+          border-color: var(--danger) !important;
         }
       `}</style>
     </div>

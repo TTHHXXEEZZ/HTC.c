@@ -141,40 +141,7 @@ export default function Dashboard({
           </div>
         </div>
 
-        {/* 4. Statistics Panel inside Sidebar (With Website view count) */}
-        <div className="sidebar-section stats-section">
-          <label className="sidebar-section-title">ภาพรวมข้อมูล</label>
-          <div className="sidebar-stats-card">
-            <div className="sidebar-stat-item">
-              <div className="stat-circle blue">
-                <BookOpen size={13} />
-              </div>
-              <span className="stat-label-text">สถานที่ทั้งหมด</span>
-              <strong className="stat-value-text">{stats.totalWp}</strong>
-            </div>
-            <div className="sidebar-stat-item">
-              <div className="stat-circle green">
-                <MessageSquare size={13} />
-              </div>
-              <span className="stat-label-text">รีวิวของรุ่นพี่</span>
-              <strong className="stat-value-text">{stats.totalRev}</strong>
-            </div>
-            <div className="sidebar-stat-item">
-              <div className="stat-circle yellow">
-                <Star size={13} />
-              </div>
-              <span className="stat-label-text">คะแนนเฉลี่ย</span>
-              <strong className="stat-value-text">{stats.avgRating}</strong>
-            </div>
-            <div className="sidebar-stat-item">
-              <div className="stat-circle red">
-                <Eye size={13} />
-              </div>
-              <span className="stat-label-text">ผู้เข้าชมเว็บไซต์</span>
-              <strong className="stat-value-text">{siteViews}</strong>
-            </div>
-          </div>
-        </div>
+
       </aside>
 
       {/* Right Grid Content (Floating Rounded Panel) */}
@@ -239,7 +206,7 @@ export default function Dashboard({
           padding: 24px;
           display: flex;
           flex-direction: column;
-          gap: 26px;
+          gap: 20px;
           flex-shrink: 0;
           
           /* Floating Panel Effect */
@@ -248,8 +215,7 @@ export default function Dashboard({
           border: none !important;
           height: calc(100vh - 72px - 48px);
           box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
-          overflow-y: auto;
-          scrollbar-width: thin;
+          overflow: hidden;
         }
 
         .sidebar-header-mobile {
@@ -359,12 +325,21 @@ export default function Dashboard({
           box-shadow: 0 0 0 3.5px var(--primary-glow);
         }
 
+        .sidebar-section.dept-section {
+          flex: 1;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+
         /* Department scroll list */
         .sidebar-dept-list {
           display: flex;
           flex-direction: column;
           gap: 4px;
-          max-height: 250px;
+          flex: 1;
+          min-height: 0;
           overflow-y: auto;
           padding-right: 6px;
           scrollbar-width: thin;

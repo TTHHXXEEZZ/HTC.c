@@ -24,8 +24,11 @@ export default async function IndexPage() {
 
   // Fetch establishments
   const workplaces = await prisma.workplace.findMany({
+    where: { approved: true },
     include: {
-      reviews: true,
+      reviews: {
+        where: { approved: true }
+      },
     },
   });
 

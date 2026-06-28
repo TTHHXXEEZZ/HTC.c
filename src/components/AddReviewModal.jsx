@@ -75,9 +75,14 @@ export default function AddReviewModal({ user, workplace, onClose, onSubmit }) {
   return (
     <div className="modal-overlay">
       <div className="modal-content add-review-modal animate-scale-up">
-        <div className="modal-header">
-          <h3>เขียนรีวิวแชร์ประสบการณ์</h3>
-          <button onClick={onClose} className="modal-close-btn" title="ปิด">
+        <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h3 style={{ margin: 0 }}>เขียนรีวิวแชร์ประสบการณ์</h3>
+            <p style={{ margin: '4px 0 0 0', fontSize: '0.78rem', color: 'var(--slate)', fontWeight: '600' }}>
+              ให้ดาวและคอมเมนต์เพื่อช่วยแนะแนวรุ่นน้อง
+            </p>
+          </div>
+          <button onClick={onClose} className="modal-close-btn" title="ปิด" style={{ alignSelf: 'flex-start' }}>
             <X size={20} />
           </button>
         </div>

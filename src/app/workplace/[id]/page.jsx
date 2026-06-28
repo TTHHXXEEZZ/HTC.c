@@ -14,20 +14,26 @@ export default async function WorkplaceDetailPage({ params }) {
   const resolvedParams = await params;
   const id = resolvedParams.id;
 
-  // 1. Increment workplace view count directly on database
   let workplace;
   try {
-    workplace = await prisma.workplace.update({
-      where: { id },
-      data: { views: { increment: 1 } },
-      include: {
-        reviews: {
-          orderBy: { createdAt: 'desc' }
-        }
-      }
+    const checkApproved = await prisma.workplace.findFirst({
+      where: { id, approved: true }
     });
+    if (checkApproved) {
+      workplace = await prisma.workplace.update({
+        where: { id },
+        data: { views: { increment: 1 } },
+        include: {
+          reviews: {
+            where: { approved: true },
+            orderBy: { createdAt: 'desc' }
+          }
+        }
+      });
+    } else {
+      workplace = null;
+    }
   } catch (e) {
-    // Fallback in case ID doesn't exist
     workplace = null;
   }
 

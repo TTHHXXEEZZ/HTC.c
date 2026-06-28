@@ -1,13 +1,20 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Dashboard from '../../views/Dashboard';
 import AddWorkplaceModal from '../../components/AddWorkplaceModal';
 import { addWorkplaceAction } from '../actions';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function DashboardClient({ workplaces = [], siteViews = 0, initialSearchTerm = '', initialSelectedDept = 'ทั้งหมด' }) {
   const [showAddWorkplace, setShowAddWorkplace] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('register') === 'true') {
+      router.push('/register-workplace');
+    }
+  }, [searchParams, router]);
 
   const handleWorkplaceClick = (id) => {
     router.push(`/workplace/${id}`);
@@ -30,7 +37,7 @@ export default function DashboardClient({ workplaces = [], siteViews = 0, initia
         workplaces={workplaces}
         siteViews={siteViews}
         onWorkplaceClick={handleWorkplaceClick}
-        onAddWorkplaceClick={() => setShowAddWorkplace(true)}
+        onAddWorkplaceClick={() => router.push('/register-workplace')}
         initialSearchTerm={initialSearchTerm}
         initialSelectedDept={initialSelectedDept}
       />

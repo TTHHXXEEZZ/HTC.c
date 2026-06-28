@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="footer-content">
         <p className="footer-copyright">
-          © {new Date().getFullYear()} HTC Workplace Connect. สงวนลิขสิทธิ์ วิทยาลัยเทคนิคหาดใหญ่ (HTC)
+          © {new Date().getFullYear()} Hatyai Technical College Insight. สงวนลิขสิทธิ์ วิทยาลัยเทคนิคหาดใหญ่ (HTC)
         </p>
         <p className="footer-tagline">
           ระบบตัวกลางรวบรวมและแบ่งปันประสบการณ์ฝึกงานของนักศึกษาทุกแผนกวิชา

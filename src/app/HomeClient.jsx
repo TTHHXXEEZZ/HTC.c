@@ -14,12 +14,17 @@ export default function HomeClient({ workplaces, siteViews }) {
     router.push(`/workplace/${id}`);
   };
 
+  const handleRegisterClick = () => {
+    router.push('/register-workplace');
+  };
+
   return (
     <Home 
       workplaces={workplaces}
       siteViews={siteViews}
       onSearch={handleSearch}
       onWorkplaceClick={handleWorkplaceClick}
+      onRegisterClick={handleRegisterClick}
     />
   );
 }
